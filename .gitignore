@@ -1,0 +1,10 @@
+build/
+.gradle/
+local.properties
+*.apk
+*.aab
+*.jks
+keystore.properties
+# Nothing's SDK is not redistributable: download it yourself (see README)
+app/libs/*.aar
+.privacy-blocklist
