@@ -50,7 +50,7 @@ public final class Scene {
     private int lastPhaseKey = -1;
     private float cancelFrom, nAlpha;
     private boolean musicDismissed;
-    private long musicOnSince = -1, musicOffSince = -1;
+    private long musicOnSince = -1, musicOffSince = -1, musicGoneSince = -1;
     private final Beat beat = new Beat();
 
     public Scene(Config cfg, Listener listener) {
@@ -376,7 +376,11 @@ public final class Scene {
     // ---------------------------------------------------------------- music
 
     private void updateMusic(long now, Input in) {
-        if (!in.musicActive) musicDismissed = false;
+        // A tap keeps the clock until the music has really stopped (4 s), so a
+        // Bluetooth hiccup in isMusicActive can't throw the bars back up.
+        if (in.musicActive) musicGoneSince = -1;
+        else if (musicGoneSince < 0) musicGoneSince = now;
+        else if (now - musicGoneSince >= 4000) musicDismissed = false;
         boolean on = cfg.autoMusic && in.musicActive && !musicDismissed;
         if (on) {
             musicOffSince = -1;

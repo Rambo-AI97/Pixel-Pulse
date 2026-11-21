@@ -32,6 +32,10 @@ A retro LED toy for the Glyph Matrix on the back of Nothing phones.
 3. Tap **Allow music bars** if you want the bars to follow your music.
 4. Press the Glyph Button on the back until Pixel Pulse shows up.
 
+## Bluetooth
+
+Many phones send Bluetooth audio straight to the headphones, where apps can't read it. Then the bars run a soft beat instead of following the song. On many phones you can get the real bars on Bluetooth with Settings → Developer options → **Disable Bluetooth A2DP hardware offload**, then reconnect your headphones.
+
 ## Privacy
 
 No ads, no tracking, no network. The microphone permission is only used to read the sound your phone itself is playing (Android's Visualizer), so the bars can move. It never listens to the room and never records. Full policy: [privacy](https://rambo-ai97.github.io/pocket-puzzle-site/pixel-pulse-privacy.html).

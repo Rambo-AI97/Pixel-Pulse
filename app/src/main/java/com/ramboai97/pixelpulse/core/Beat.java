@@ -21,9 +21,11 @@ public final class Beat {
         boolean sound = false;
         if (bands != null) for (float v : bands) if (v > 0.04f) { sound = true; break; }
         if (sound) lastSound = now;
-        // Gentle wave only when there's no audio data at all (no mic permission or
-        // the visualizer failed). Real silence shows as silence, so pauses read.
-        boolean pulse = bands == null && now - lastSound > 2000;
+        // Soft beat when the phone can't hear the music: no audio data at all (no mic
+        // permission, visualizer failed, or Bluetooth hands audio straight to the
+        // headphones), or music "playing" but dead silent for 4 s (Bluetooth offload
+        // feeds zeros). A short pause in a song still reads as a pause.
+        boolean pulse = now - lastSound > (bands == null ? 1500 : 4000);
 
         // One shared pulse that snaps open on every hit (kick, snare, a spoken
         // syllable) and closes fast in between, so the whole shape opens and
@@ -37,7 +39,12 @@ public final class Beat {
         }
         boolean hit = loud - lastLoud > 0.12f && loud > 0.35f;   // a rising edge
         lastLoud = loud;
-        if (!playing || pulse) jaw = 0;
+        if (pulse && playing) {
+            // ~116 bpm: snap open on each beat, close fast, a softer off-beat between
+            float ph = (now % 520) / 520f;
+            jaw = ph < 0.5f ? 0.75f * (float) Math.exp(-ph * 9) : 0.45f * (float) Math.exp(-(ph - 0.5f) * 9);
+        }
+        else if (!playing) jaw = 0;
         else if (hit) jaw = Math.min(1f, Math.max(jaw, loud) + 0.1f);    // pop open
         else if (loud > jaw) jaw += (loud - jaw) * 0.5f;
         else jaw *= 0.80f;                                              // shut quickly (~150 ms)
@@ -45,7 +52,7 @@ public final class Beat {
         for (int k = 0; k < 6; k++) {
             float target;
             if (!playing) target = 0;
-            else if (pulse) target = (0.5f - 0.05f * k) * (0.65f + 0.35f * (float) Math.sin(now / 450.0 - k * 0.9));
+            else if (pulse) target = jaw * (1f - 0.09f * k) * (0.8f + 0.2f * (float) Math.sin(now / 700.0 - k * 1.3));
             else {
                 float band = bands == null ? 0 : bands[k];
                 float shape = 1f - 0.09f * k;                 // tallest in the middle, like lips

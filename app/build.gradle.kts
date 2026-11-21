@@ -23,8 +23,8 @@ android {
         applicationId = "com.ramboai97.pixelpulse"
         minSdk = 34
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.0"
+        versionCode = 9
+        versionName = "1.1"
         manifestPlaceholders["nothingKey"] = nothingKey
     }
     signingConfigs {

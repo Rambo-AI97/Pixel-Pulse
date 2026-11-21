@@ -206,7 +206,7 @@ public class PixelPulseService extends Service implements SensorEventListener {
             readClock();
             readHeading();
             boolean music = audio != null && audio.isMusicActive();
-            if (music != in.musicActive) Log.d(TAG, "music " + music);
+            if (music != in.musicActive) Log.d(TAG, "music " + music + (music ? " out=" + outputName() : ""));
             in.musicActive = music;
             if (in.headingOk != lastOk) { lastOk = in.headingOk; Log.d(TAG, "compass ok=" + lastOk + " acc=" + rotAccuracy + " headAcc=" + headAcc); }
             in.bands = viz != null && now - lastFft < 1500 ? bands : null;
@@ -305,6 +305,18 @@ public class PixelPulseService extends Service implements SensorEventListener {
         } catch (Throwable t) {
             Log.w(TAG, "visualizer unavailable, using pulse", t);
         }
+    }
+
+    /** Where sound is going, for the log (Bluetooth often hides audio from the Visualizer). */
+    private String outputName() {
+        try {
+            for (android.media.AudioDeviceInfo d : audio.getDevices(AudioManager.GET_DEVICES_OUTPUTS)) {
+                int t = d.getType();
+                if (t == android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP || t == android.media.AudioDeviceInfo.TYPE_BLE_HEADSET
+                        || t == android.media.AudioDeviceInfo.TYPE_BLE_SPEAKER) return "bluetooth";
+            }
+        } catch (Throwable ignored) {}
+        return "phone";
     }
 
     private void stopViz() {
